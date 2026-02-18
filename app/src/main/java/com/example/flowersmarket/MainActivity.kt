@@ -40,11 +40,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpRecyclerView() {
-        TODO("Not yet implemented")
     }
 
     private fun observeData() {
         //View live data: error, loading, success
+        //viewModel observes the changes in the data to update the UI
 
         viewModel.flowers.observe(this) {flowers ->
             Log.i("Data", flowers[0].name)
