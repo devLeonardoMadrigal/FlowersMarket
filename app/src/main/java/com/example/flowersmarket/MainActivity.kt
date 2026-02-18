@@ -8,8 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.flowersmarket.databinding.ActivityMainBinding
+import com.example.flowersmarket.ui.FlowersAdapter
 import com.example.flowersmarket.viewmodel.FlowersViewModel
-
 
 /*
 1. Initialize the VM Object
@@ -17,13 +19,18 @@ import com.example.flowersmarket.viewmodel.FlowersViewModel
 3. Assign the value to recyclerview adapter
  */
 class MainActivity : AppCompatActivity() {
-
+    private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: FlowersViewModel
+
+    private lateinit var adapter: FlowersAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
 
         //Set up recyclerview
         setUpRecyclerView()
@@ -40,6 +47,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpRecyclerView() {
+        binding.rvFlowers.layoutManager = LinearLayoutManager(this@MainActivity)
+        //adapter  = FlowersAdapter(viewModel.flowers.observe(t))
+
     }
 
     private fun observeData() {
@@ -47,21 +57,33 @@ class MainActivity : AppCompatActivity() {
         //viewModel observes the changes in the data to update the UI
 
         viewModel.flowers.observe(this) {flowers ->
-            Log.i("Data", flowers[0].name)
+            if (flowers.isNotEmpty()) {
+                Log.i("Data", "First flower: ${flowers[0].name}")
+
+                // Assign the adapter
+                binding.rvFlowers.adapter = FlowersAdapter(flowers)
+            } else {
+                Log.i("Data", "No flowers found")
+                // Optional: You could show a "No items" text view here
+            }
+            binding.rvFlowers.adapter= FlowersAdapter(flowers)
+
         }
 
         viewModel.loading.observe(this){isLoading ->
+            Log.i("Loading", isLoading.toString())
 
         }
 
         viewModel.error.observe(this){ errorMessage ->
-            Toast.makeText(this, errorMessage,Toast.LENGTH_SHORT).show()
+            Log.i("Loading", errorMessage.toString())
+
+            Toast.makeText(this, errorMessage,Toast.LENGTH_LONG).show()
         }
+
     }
 
     private fun setUpViewModel() {
-        //TODO: HILT DI
-
         viewModel = ViewModelProvider(this)[FlowersViewModel::class.java]
     }
 }
